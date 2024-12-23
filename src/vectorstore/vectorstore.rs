@@ -16,6 +16,12 @@ pub trait VectorStore: Send + Sync {
         opt: &VecStoreOptions,
     ) -> Result<Vec<String>, Box<dyn Error>>;
 
+    async fn delete_documents(
+        &self,
+        ids: &[String],
+        opt: &VecStoreOptions,
+    ) -> Result<(), Box<dyn Error>>;
+
     async fn similarity_search(
         &self,
         query: &str,
@@ -41,6 +47,18 @@ macro_rules! add_documents {
         $obj.add_documents($docs, $opt)
     };
 }
+
+
+#[macro_export]
+macro_rules! delete_documents {
+    ($obj:expr, $ids:expr) => {
+        $obj.delete_documents($ids, &$crate::vectorstore::VecStoreOptions::default())
+    };
+    ($obj:expr, $ids:expr, $opt:expr) => {
+        $obj.delete_documents($ids, $opt)
+    };
+}
+
 
 #[macro_export]
 macro_rules! similarity_search {

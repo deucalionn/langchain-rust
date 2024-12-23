@@ -158,6 +158,30 @@ impl VectorStore for Store {
         Ok(ids)
     }
 
+
+    async fn delete_documents(
+        &self,
+        ids: &[String],
+        opt: &VecStoreOptions,
+    ) -> Result<(), Box<dyn Error
+    >> {
+        let mut tx = self.pool.begin().await?;
+
+        for id in ids {
+            sqlx::query(&format!(
+                r#"DELETE FROM {} WHERE uuid = $1"#,
+                self.embedder_table_name
+            ))
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+        }
+
+        tx.commit().await?;
+
+        Ok(())
+    }
+
     async fn similarity_search(
         &self,
         query: &str,
